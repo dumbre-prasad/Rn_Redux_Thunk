@@ -3,8 +3,6 @@ const initialState = {
   places: [],
 };
 const placeReducer = (state = initialState, action) => {
-  console.log('action', action);
-
   switch (action.type) {
     case ADD_PLACE:
       return {

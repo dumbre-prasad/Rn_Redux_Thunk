@@ -1,32 +1,36 @@
 // App.js
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {SafeAreaView} from 'react-native';
-
+import {useSelector} from 'react-redux';
 import {StyleSheet, View, TextInput, Button, FlatList} from 'react-native';
 import ListItem from './src/components/ListItem';
-import {connect} from 'react-redux';
-import {addPlace} from './src/redux/actions/place';
-class App extends Component {
-  state = {
+import {usePlace} from './src/redux/actions/usePlace';
+
+const App = () => {
+  const {addPlace} = usePlace();
+  const places = useSelector(state => state?.places?.places);
+
+  const [state, setState] = useState({
     placeName: '',
     places: [],
-  };
-  placeSubmitHandler = () => {
-    if (this.state.placeName.trim() === '') {
+  });
+
+  const placeSubmitHandler = () => {
+    if (state.placeName.trim() === '') {
       return;
     }
-    this.props.add(this.state.placeName);
+    addPlace(state.placeName);
   };
-  placeNameChangeHandler = value => {
-    this.setState({
+  const placeNameChangeHandler = value => {
+    setState({
       placeName: value,
     });
   };
-  placesOutput = () => {
+  const placesOutput = () => {
     return (
       <FlatList
         style={styles.listContainer}
-        data={this.props.places}
+        data={places}
         keyExtractor={(item, index) => index.toString()}
         renderItem={info => (
           <ListItem placeName={info.item.value} keyValue={info.item.key} />
@@ -34,27 +38,28 @@ class App extends Component {
       />
     );
   };
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Seach Places"
-            style={styles.placeInput}
-            value={this.state.placeName}
-            onChangeText={this.placeNameChangeHandler}
-          />
-          <Button
-            title="Add"
-            style={styles.placeButton}
-            onPress={this.placeSubmitHandler}
-          />
-        </View>
-        <View style={styles.listContainer}>{this.placesOutput()}</View>
-      </SafeAreaView>
-    );
-  }
-}
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Seach Places"
+          style={styles.placeInput}
+          value={state.placeName}
+          onChangeText={placeNameChangeHandler}
+        />
+        <Button
+          title="Add"
+          style={styles.placeButton}
+          onPress={placeSubmitHandler}
+        />
+      </View>
+      <View style={styles.listContainer}>{placesOutput()}</View>
+    </SafeAreaView>
+  );
+};
+
+export default App;
+
 const styles = StyleSheet.create({
   container: {
     paddingTop: 30,
@@ -77,17 +82,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-const mapStateToProps = state => {
-  console.log('state.places.places', state.places.places);
-  return {
-    places: state.places.places,
-  };
-};
-const mapDispatchToProps = dispatch => {
-  return {
-    add: name => {
-      dispatch(addPlace(name));
-    },
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(App);
